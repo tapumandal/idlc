@@ -49,7 +49,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{route('ifa_registration.postEdit')}}" accept-charset="UTF-8" class="form-signin">
+        <form method="POST" action="{{route('ifa_registration.login')}}" accept-charset="UTF-8" class="form-signin">
             <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
             <div class="form-group has-feedback{{ $errors->has('application_no') ? ' has-error' : ''}}">

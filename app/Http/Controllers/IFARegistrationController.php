@@ -94,7 +94,7 @@ class IFARegistrationController extends Controller {
 					'last_name' => 'required|max:70',
 					'mobile_no' => 'required|digits:9|unique:tbl_ifa_registrations,mobile_no',
 					'email' => 'required|email|max:200|unique:tbl_ifa_registrations,email',
-					'date_of_birth' => 'required|date_format:m/d/Y',
+					'date_of_birth' => 'required',
 					'national_id_card_no' => 'required|max:25|unique:tbl_ifa_registrations,national_id_card_no',
 					'middle_name' => 'sometimes|max:70',
 					'father_name' => 'sometimes|max:254',
@@ -421,61 +421,82 @@ class IFARegistrationController extends Controller {
 		return response()->json($return_data_arr);
 	}
 
-	public function edit() {
+	public function edit(Request $request) {
 //        echo 'Application no. : '  . session()->pull('application_no') . '<br />';
 		//        echo 'Password : '  . session()->pull('password');
-		return view('ifa_registration_form.agent_login');
+        if( $request->session()->get('user_name') !== null && $request->session()->get('ifausraccess') !== null ){
+//            return'sdfsfsd';
+            return redirect()->route('ifa_registration.postEdit');
+        }
+		return view('ifa_registration_form.edit');
 	}
 
 	public function postEdit(Request $request) {
-		$data = [
-			//'step' => 1,
-			//            'existing_application_details' => $existing_application_details,
-			'divisions' => DB::table('tbl_bangladesh_divisions')
-				->orderBy('division_id', 'DESC')
-				->where('is_deleted', 0)->get(),
-			'banks' => DB::table('tbl_bangladesh_bank')
-				->orderBy('bank_id', 'DESC')
-				->where('is_deleted', 0)->get(),
-			'nationalities' => DB::table('tbl_nationalitys')
-				->orderBy('id_nationality', 'DESC')
-				->where('is_deleted', 0)->get(),
-			'premise_ownerships' => DB::table('tbl_premise_ownership')
-				->orderBy('id_premise_ownership', 'DESC')
-				->where('is_deleted', 0)->get(),
-			'user_types' => DB::table('tbl_user_type')
-				->orderBy('id_user_type', 'DESC')
-				->where('is_deleted', 0)->get(),
-		];
-//        echo '<pre>';print_r($request->all());exit;
-		$validator = Validator::make($request->all(), [
-			// 'application_no' => 'required|numeric',
-			'user_name' => 'required',
-			'password' => 'required|string',
-		])->validate();
 
-		// $application_no = $request->input('application_no');
-		$userName = $request->input('user_name');
-		$password = $request->input('password');
-		// $existing_ifa_info = IFARegistration::where('application_no', $application_no)->first();
-		$existing_ifa_info = IFARegistration::where('user_name', $userName)->first();
+            $data = [
+                //'step' => 1,
+                //            'existing_application_details' => $existing_application_details,
+                'divisions' => DB::table('tbl_bangladesh_divisions')
+                    ->orderBy('division_id', 'DESC')
+                    ->where('is_deleted', 0)->get(),
+                'banks' => DB::table('tbl_bangladesh_bank')
+                    ->orderBy('bank_id', 'DESC')
+                    ->where('is_deleted', 0)->get(),
+                'nationalities' => DB::table('tbl_nationalitys')
+                    ->orderBy('id_nationality', 'DESC')
+                    ->where('is_deleted', 0)->get(),
+                'premise_ownerships' => DB::table('tbl_premise_ownership')
+                    ->orderBy('id_premise_ownership', 'DESC')
+                    ->where('is_deleted', 0)->get(),
+                'user_types' => DB::table('tbl_user_type')
+                    ->orderBy('id_user_type', 'DESC')
+                    ->where('is_deleted', 0)->get(),
+            ];
 
-		if (!empty($existing_ifa_info)) {
+//            $validator = Validator::make($request->all(), [
+//                'user_name' => 'required',
+//                'password' => 'required|string',
+//            ])->validate();
 
-			if (Hash::check($password, $existing_ifa_info->password)) {
+            // $application_no = $request->input('application_no');
+            if($request->session()->get('user_name') !== null && $request->session()->get('ifausraccess') !== null){
+//                return 'IF';
+                $userName = $request->session()->get('user_name');
+                $password = $request->session()->get('ifausraccess');
+            }else{
+//                return 'else';
+                $userName = $request->input('user_name');
+                $password = $request->input('password');
+            }
 
-				$data['application_details'] = $existing_ifa_info;
-				$data['application_no'] = isset($existing_ifa_info->application_no) ? $existing_ifa_info->application_no : 0;
-			} else {
-				return redirect()->route("ifa_registration.edit")->withErrors(['error_message' => 'Invalid application no. or password!']);
-			}
-		} else {
 
-			return redirect()->route('ifa_registration.edit')->withErrors(['error_message' => 'Invalid application no. or password!']);
-		}
+            // $existing_ifa_info = IFARegistration::where('application_no', $application_no)->first();
+            $existing_ifa_info = IFARegistration::where('user_name', $userName)->first();
+
+            if (!empty($existing_ifa_info)) {
+
+                if (Hash::check($password, $existing_ifa_info->password)) {
+
+                    $data['application_details'] = $existing_ifa_info;
+                    $data['application_no'] = isset($existing_ifa_info->application_no) ? $existing_ifa_info->application_no : 0;
+                } else {
+                    return redirect()->route("ifa_registration.edit")->withErrors(['error_message' => 'Invalid application no. or password!']);
+                }
+            } else {
+
+                return redirect()->route('ifa_registration.edit')->withErrors(['error_message' => 'Invalid application no. or password!']);
+            }
+
+            $request->session()->put('user_name', $userName);
+            $request->session()->put('ifausraccess', $password);
+
 
 //        echo '<pre>';print_r($data);exit;
-		return view('ifa_registration_form.postEdit', $data);
+            return view('ifa_registration_form.postEdit', $data);
+
+
+
+
 	}
 
 	public function update(Request $request, $application_no) {
@@ -531,7 +552,7 @@ class IFARegistrationController extends Controller {
 					'last_name' => 'required|max:70',
 					// 'mobile_no' => 'required|digits:9|unique:tbl_ifa_registrations,mobile_no',
 					// 'email' => 'required|email|max:200|unique:tbl_ifa_registrations,email',
-					'date_of_birth' => 'required|date_format:m/d/Y',
+					'date_of_birth' => 'required',
 					'national_id_card_no' => 'required|max:25|unique:tbl_ifa_registrations,national_id_card_no,' . $application_no . ',application_no',
 					'middle_name' => 'sometimes|max:70',
 					'father_name' => 'sometimes|max:254',
@@ -721,7 +742,7 @@ class IFARegistrationController extends Controller {
 			if ($request->job_holder === 'yes') {
 				$validMessage = [
 					'organization_name.required' => 'organization_name is required',
-					'job_holder_department.required' => 'employee_id_no is required',
+					'employee_id_no.required' => 'employee_id_no is required',
 					'designation.required' => 'institution_name is required',
 					'employee_id_no.required' => 'student_id_card_no is required',
 				];
