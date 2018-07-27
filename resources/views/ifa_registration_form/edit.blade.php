@@ -49,12 +49,19 @@
     </div>
     @endif
 
+        @if(session()->has('ifa_registration_success_message'))
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <strong>{{ session()->pull('ifa_registration_success_message') }}</strong>
+            </div>
+        @endif
+
     <form method="POST" action="{{route('ifa_registration.postEdit')}}" accept-charset="UTF-8" class="form-signin">
         <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
         <div class="form-group has-feedback{{ $errors->has('application_no') ? ' has-error' : ''}}">
             {{-- <input type="text" id="application_no" name="application_no" class="form-control" placeholder="Application No." value="" required autofocus/> --}}
-            <input type="text" id="application_no" name="user_name" class="form-control" placeholder="User Name" value="" required autofocus/>
+            <input type="text" id="application_no" name="mobile_no" class="form-control" placeholder="Mobile No" value="" required autofocus/>
             <span class="glyphicon glyphicon-list form-control-feedback"></span>
             @if($errors->has('application_no'))
             <span class="help-block">{{ $errors->first('application_no') }}</span>
