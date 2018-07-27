@@ -209,12 +209,15 @@
                             <div class="clearfix"></div>
                         </form>
                     </div>
-                    <div class="col-md-2 col-xs-12">
-                        <a class="login" href="./exit" >Exit</a>
-                    </div>
-                    <div class="col-md-2 col-xs-12">
-                        <a target="_blank" href="http://digital.aml.idlc.com/auth/login" class="login">Login</a>
-                    </div>
+
+                    @if(session()->get('mobile_no') !== null && session()->get('ifausraccess') !== null)
+                        <div class="col-md-4 col-xs-12">
+                            <a class="login" href="./exit" >SignOut</a>
+                        </div>
+                    @endif
+                    {{--<div class="col-md-2 col-xs-12">--}}
+                        {{--<a target="_blank" href="http://digital.aml.idlc.com/auth/login" class="login">Login</a>--}}
+                    {{--</div>--}}
 
                     <div class="col-xs-12">
                         <div class="mobile_hamburger">

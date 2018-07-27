@@ -9,7 +9,7 @@ class IFALoginController extends Controller
 {
     public function logout(Request $request){
 
-        $request->session()->forget('user_name');
+        $request->session()->forget('mobile_no');
         $request->session()->forget('ifausraccess');
         $request->session()->flush();
 

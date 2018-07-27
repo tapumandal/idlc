@@ -791,6 +791,9 @@ $('.receive_sales_commission_by_flag_Bank').css('display', '{{ $application_deta
                     } else if (response.has_success === true) {
 
                         if (response.success_messages.enable_step == 1) {
+                            <?php
+                                session()->put('ifa_registration_success_message', 'Thank you for applying as IFA! Your application has been submitted, an email has been sent to your email address');
+                                ?>
                             window.location.href = "{{ route('ifa_registration.edit') }}";
                         }
 

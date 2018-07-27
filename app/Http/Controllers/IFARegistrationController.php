@@ -210,8 +210,10 @@ class IFARegistrationController extends Controller {
 				$userName = strtolower($request->input('first_name')) . $application_no;
 				DB::table('tbl_ifa_registrations')->where('application_no', $application_no)->update(['user_name' => $userName]);
 				//echo $application_no;exit;
+                $mobile_no = $request->input('mobile_no');
 				$request->session()->put('ifa_registration_password', $password);
 				$request->session()->put('ifa_registration_user_name', $userName);
+                $request->session()->put('ifa_registration_mobile_no', $mobile_no);
 
 				if ($request->hasFile('upload_picture')) {
 					if ($request->file('upload_picture')->isValid()) {
@@ -231,6 +233,7 @@ class IFARegistrationController extends Controller {
 					'success_messages' => [
 						'application_no' => $application_no,
 						'user_name' => $userName,
+						'mobile_no' => $mobile_no,
 						'application_password' => $password,
 						'enable_step' => 2,
 						'enable_steps_id' => [
@@ -334,6 +337,7 @@ class IFARegistrationController extends Controller {
 				'success_messages' => [
 					'application_no' => $application_no,
 					'user_name' => $request->session()->get('ifa_registration_user_name'),
+                    'mobile_no' => $request->session()->get('mobile_no'),
 					'application_password' => $request->session()->get('ifa_registration_password'),
 					'enable_step' => 3,
 					'enable_steps_id' => [
@@ -412,6 +416,7 @@ class IFARegistrationController extends Controller {
 				'success_messages' => [
 					'application_no' => $application_no,
 					'user_name' => $request->session()->get('ifa_registration_user_name'),
+                    'mobile_no' => $request->session()->get('ifa_registration_mobile_no'),
 					'application_password' => $request->session()->get('ifa_registration_password'),
 					'enable_step' => 1,
 				],
@@ -424,7 +429,7 @@ class IFARegistrationController extends Controller {
 	public function edit(Request $request) {
 //        echo 'Application no. : '  . session()->pull('application_no') . '<br />';
 		//        echo 'Password : '  . session()->pull('password');
-        if( $request->session()->get('user_name') !== null && $request->session()->get('ifausraccess') !== null ){
+        if( $request->session()->get('mobile_no') !== null && $request->session()->get('ifausraccess') !== null ){
 //            return'sdfsfsd';
             return redirect()->route('ifa_registration.postEdit');
         }
@@ -459,19 +464,19 @@ class IFARegistrationController extends Controller {
 //            ])->validate();
 
             // $application_no = $request->input('application_no');
-            if($request->session()->get('user_name') !== null && $request->session()->get('ifausraccess') !== null){
+            if($request->session()->get('mobile_no') !== null && $request->session()->get('ifausraccess') !== null){
 //                return 'IF';
-                $userName = $request->session()->get('user_name');
+                $userName = $request->session()->get('mobile_no');
                 $password = $request->session()->get('ifausraccess');
             }else{
 //                return 'else';
-                $userName = $request->input('user_name');
+                $userName = $request->input('mobile_no');
                 $password = $request->input('password');
             }
 
 
             // $existing_ifa_info = IFARegistration::where('application_no', $application_no)->first();
-            $existing_ifa_info = IFARegistration::where('user_name', $userName)->first();
+            $existing_ifa_info = IFARegistration::where('mobile_no', $userName)->first();
 
             if (!empty($existing_ifa_info)) {
 
@@ -487,7 +492,7 @@ class IFARegistrationController extends Controller {
                 return redirect()->route('ifa_registration.edit')->withErrors(['error_message' => 'Invalid application no. or password!']);
             }
 
-            $request->session()->put('user_name', $userName);
+            $request->session()->put('mobile_no', $userName);
             $request->session()->put('ifausraccess', $password);
 
 
